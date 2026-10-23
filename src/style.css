@@ -163,3 +163,15 @@ body { -webkit-text-size-adjust:100%; }
 @media (prefers-reduced-motion:reduce) {
   *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; }
 }
+
+/* Mobile framing refinement: give the full dessert room inside the portrait viewport. */
+@media (max-width:700px) and (orientation:portrait) {
+  .hero { padding-top: max(7svh, env(safe-area-inset-top)); }
+  .hero h1 { max-width: 86vw; font-size: clamp(2.5rem, 10.5vw, 4.1rem); }
+  .hero .lede { max-width: 76vw; }
+  .step { padding-left: 6vw; padding-right: 6vw; }
+  .step-copy { max-width: 82vw; }
+  .step-copy h2 { max-width: 78vw; font-size: clamp(2rem, 8.5vw, 3.2rem); }
+  .step-copy>p:not(.eyebrow) { max-width: 76vw; font-size: .9rem; }
+  .scene-label { max-width: 58vw; }
+}

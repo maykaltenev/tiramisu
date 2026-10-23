@@ -23,7 +23,7 @@ scene.fog = new THREE.Fog(0x21140f, 9, 22);
 
 const camera = new THREE.PerspectiveCamera(29, window.innerWidth / window.innerHeight, 0.1, 100);
 // Keep the dessert prominent and almost front-on, like a premium food product shot.
-camera.position.set(0, 3.35, 6.8);
+camera.position.set(0, 3.35, window.innerWidth < 700 ? 9.7 : 6.8);
 camera.lookAt(0, 0.72, 0);
 
 scene.add(new THREE.HemisphereLight(0xffe9d4, 0x392014, 2.5));
@@ -201,8 +201,9 @@ function animateStep(step){
  // Cocoa is a separate cap above the upper cream; it stays on top in the final state.
  gsap.to(cocoaGroup.position,{y:showCocoa?1.24:3.5,duration:.8,ease:'power2.out'});
  // Each scroll step moves the camera closer and turns the dessert slightly for a progressive reveal.
- const zoom=[6.8,6.45,6.1,5.8,5.45,5.1][step];
- const tilt=[3.55,3.5,3.45,3.4,3.35,3.3][step];
+ const mobileView = window.innerWidth < 700;
+ const zoom=(mobileView ? [9.7,9.55,9.4,9.25,9.1,8.95] : [6.8,6.45,6.1,5.8,5.45,5.1])[step];
+ const tilt=(mobileView ? [3.7,3.68,3.65,3.62,3.6,3.58] : [3.55,3.5,3.45,3.4,3.35,3.3])[step];
  gsap.to(camera.position,{x:.15,y:tilt,z:zoom,duration:1.0,ease:'power2.inOut',onUpdate:()=>camera.lookAt(0,.72,0)});
  state.targetRotation = step*.24;
 }
@@ -211,7 +212,7 @@ biscuitMeshes.forEach(b=>gsap.set(b.position,{y:3.6}));
 biscuitMeshes2.forEach(b=>gsap.set(b.position,{y:4.2}));
 gsap.set(cream1.position,{y:2.8});gsap.set(cream2.position,{y:3.8});gsap.set(cocoaGroup.position,{y:3.5});
 
-ScrollTrigger.create({trigger:'.hero',start:'top top',end:'bottom top',onEnterBack:()=>gsap.to(camera.position,{z:6.8,duration:1.1,ease:'power2.inOut'})});
+ScrollTrigger.create({trigger:'.hero',start:'top top',end:'bottom top',onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?9.7:6.8,duration:1.1,ease:'power2.inOut'})});
 document.querySelectorAll('.step').forEach((section,index)=>{
  ScrollTrigger.create({
    trigger:section,start:'top center',end:'bottom center',
@@ -221,12 +222,12 @@ document.querySelectorAll('.step').forEach((section,index)=>{
 });
 ScrollTrigger.create({trigger:'.ingredients',start:'top center',onEnter:()=>{
  numberEl.textContent='✦';titleEl.textContent='The ingredient list';subtitleEl.textContent='Ready for your kitchen';
- gsap.to(camera.position,{z:6.8,duration:1.1,ease:'power2.inOut'});
-},onEnterBack:()=>gsap.to(camera.position,{z:5.1,duration:1.1,ease:'power2.inOut'})});
+ gsap.to(camera.position,{z:window.innerWidth<700?9.7:6.8,duration:1.1,ease:'power2.inOut'});
+},onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?8.95:5.1,duration:1.1,ease:'power2.inOut'})});
 function resize(){camera.aspect=innerWidth/innerHeight;
  camera.position.x=0;
- camera.position.z=THREE.MathUtils.clamp(camera.position.z,4.3,9.0);
- camera.fov=innerWidth<700?34:29;
+ camera.position.z=THREE.MathUtils.clamp(camera.position.z,innerWidth<700?8.8:4.3,innerWidth<700?11.5:9.0);
+ camera.fov=innerWidth<700?56:29;
  camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);ScrollTrigger.refresh();}
 addEventListener('resize',resize);
 // Direct manipulation: drag anywhere over the stage to orbit 360 degrees.
@@ -255,7 +256,7 @@ document.addEventListener('pointerup',stopDrag);
 document.addEventListener('pointercancel',stopDrag);
 addEventListener('wheel',e=>{
  if(e.ctrlKey)return;
- camera.position.z=THREE.MathUtils.clamp(camera.position.z+Math.sign(e.deltaY)*.12,4.3,9.0);
+ camera.position.z=THREE.MathUtils.clamp(camera.position.z+Math.sign(e.deltaY)*.12,window.innerWidth<700?8.8:4.3,window.innerWidth<700?11.5:9.0);
 },{passive:true});
 const clock=new THREE.Clock();
 function render(){
