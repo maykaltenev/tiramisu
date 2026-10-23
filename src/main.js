@@ -11,7 +11,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 const isMobile = window.matchMedia('(max-width: 700px)').matches;
 const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
 // Limit fill-rate on phones; high-DPI full-resolution WebGL is expensive.
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile || isCoarsePointer ? 1.25 : 1.7));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile || isCoarsePointer ? 1.0 : 1.7));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = !(isMobile || isCoarsePointer);
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -24,9 +24,9 @@ const scene = new THREE.Scene();
 scene.background = null;
 scene.fog = new THREE.Fog(0x21140f, 9, 22);
 
-const camera = new THREE.PerspectiveCamera(window.innerWidth < 700 ? 58 : 29, window.innerWidth / window.innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(window.innerWidth < 700 ? 61 : 29, window.innerWidth / window.innerHeight, 0.1, 100);
 // Keep the dessert prominent and almost front-on, like a premium food product shot.
-camera.position.set(0, 3.35, window.innerWidth < 700 ? 12.2 : 6.8);
+camera.position.set(0, 3.35, window.innerWidth < 700 ? 14.6 : 6.8);
 camera.lookAt(0, 0.72, 0);
 
 scene.add(new THREE.HemisphereLight(0xffe9d4, 0x392014, 2.5));
@@ -149,20 +149,20 @@ const cocoaColors=[0x3a1c11,0x56301d,0x704629,0x8a5b39];
 // Render cocoa as one lightweight point cloud rather than thousands of individual meshes.
 const cocoaPositions=[], cocoaColorValues=[];
 const cocoaThreeColors=cocoaColors.map(c=>new THREE.Color(c));
-const cocoaCount=isMobile || isCoarsePointer ? 850 : 1900;
+const cocoaCount=isMobile || isCoarsePointer ? 2100 : 5600;
 for(let i=0;i<cocoaCount;i++){
- const size=.0035+Math.random()*.007;
+ const size=.004+Math.random()*.009;
  cocoaPositions.push((Math.random()-.5)*3.78,.028+Math.random()*.028,(Math.random()-.5)*2.38);
  const c=cocoaThreeColors[i%cocoaThreeColors.length]; cocoaColorValues.push(c.r,c.g,c.b);
 }
 const cocoaGeometry=new THREE.BufferGeometry();
 cocoaGeometry.setAttribute('position',new THREE.Float32BufferAttribute(cocoaPositions,3));
 cocoaGeometry.setAttribute('color',new THREE.Float32BufferAttribute(cocoaColorValues,3));
-const cocoaSpecks=new THREE.Points(cocoaGeometry,new THREE.PointsMaterial({size:isMobile?.025:.018,sizeAttenuation:true,vertexColors:true,roughness:1,transparent:true,opacity:.9,depthWrite:false}));
+const cocoaSpecks=new THREE.Points(cocoaGeometry,new THREE.PointsMaterial({size:isMobile || isCoarsePointer ? .038 : .03,sizeAttenuation:true,vertexColors:true,roughness:1,transparent:true,opacity:.98,depthWrite:false}));
 cocoaParticles.add(cocoaSpecks);
-const dustMaterial = new THREE.PointsMaterial({color:0x5b321e,size:.018,sizeAttenuation:true,transparent:true,opacity:.38,depthWrite:false});
+const dustMaterial = new THREE.PointsMaterial({color:0x5b321e,size:isMobile || isCoarsePointer ? .022 : .02,sizeAttenuation:true,transparent:true,opacity:.52,depthWrite:false});
 const dustVertices=[];
-for(let i=0;i<(isMobile || isCoarsePointer ? 700 : 1600);i++) dustVertices.push((Math.random()-.5)*3.85,.06+Math.random()*.22,(Math.random()-.5)*2.44);
+for(let i=0;i<(isMobile || isCoarsePointer ? 500 : 2400);i++) dustVertices.push((Math.random()-.5)*3.85,.06+Math.random()*.22,(Math.random()-.5)*2.44);
 const dustGeometry=new THREE.BufferGeometry();
 dustGeometry.setAttribute('position',new THREE.Float32BufferAttribute(dustVertices,3));
 const airborneDust=new THREE.Points(dustGeometry,dustMaterial);
@@ -211,9 +211,9 @@ function animateStep(step){
  gsap.to(cocoaGroup.position,{y:showCocoa?1.24:3.5,duration:.8,ease:'power2.out'});
  // Each scroll step moves the camera closer and turns the dessert slightly for a progressive reveal.
  const mobileView = window.innerWidth < 700;
- const zoom=(mobileView ? [12.2,12.05,11.9,11.75,11.6,11.45] : [6.8,6.45,6.1,5.8,5.45,5.1])[step];
+ const zoom=(mobileView ? [14.6,14.45,14.3,14.15,14.0,13.85] : [6.8,6.45,6.1,5.8,5.45,5.1])[step];
  const motionDuration=mobileView ? .58 : 1.0;
- const tilt=(mobileView ? [3.7,3.68,3.65,3.62,3.6,3.58] : [3.55,3.5,3.45,3.4,3.35,3.3])[step];
+ const tilt=(mobileView ? [3.45,3.44,3.43,3.42,3.41,3.4] : [3.55,3.5,3.45,3.4,3.35,3.3])[step];
  gsap.to(camera.position,{x:.15,y:tilt,z:zoom,duration:motionDuration,ease:'power2.inOut',onUpdate:()=>camera.lookAt(0,.72,0)});
  state.targetRotation = step*.24;
 }
@@ -222,7 +222,7 @@ biscuitMeshes.forEach(b=>gsap.set(b.position,{y:3.6}));
 biscuitMeshes2.forEach(b=>gsap.set(b.position,{y:4.2}));
 gsap.set(cream1.position,{y:2.8});gsap.set(cream2.position,{y:3.8});gsap.set(cocoaGroup.position,{y:3.5});
 
-ScrollTrigger.create({trigger:'.hero',start:'top top',end:'bottom top',onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?12.2:6.8,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'})});
+ScrollTrigger.create({trigger:'.hero',start:'top top',end:'bottom top',onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?14.6:6.8,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'})});
 document.querySelectorAll('.step').forEach((section,index)=>{
  ScrollTrigger.create({
    trigger:section,start:'top center',end:'bottom center',
@@ -232,12 +232,12 @@ document.querySelectorAll('.step').forEach((section,index)=>{
 });
 ScrollTrigger.create({trigger:'.ingredients',start:'top center',onEnter:()=>{
  numberEl.textContent='✦';titleEl.textContent='The ingredient list';subtitleEl.textContent='Ready for your kitchen';
- gsap.to(camera.position,{z:window.innerWidth<700?12.2:6.8,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'});
-},onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?11.45:5.1,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'})});
+ gsap.to(camera.position,{z:window.innerWidth<700?14.6:6.8,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'});
+},onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?13.85:5.1,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'})});
 function resize(){camera.aspect=innerWidth/innerHeight;
  camera.position.x=0;
- camera.position.z=THREE.MathUtils.clamp(camera.position.z,innerWidth<700?10.8:4.3,innerWidth<700?13.5:9.0);
- camera.fov=innerWidth<700?58:29;
+ camera.position.z=THREE.MathUtils.clamp(camera.position.z,innerWidth<700?13.2:4.3,innerWidth<700?16.5:9.0);
+ camera.fov=innerWidth<700?61:29;
  renderer.setPixelRatio(Math.min(window.devicePixelRatio, innerWidth<700 || isCoarsePointer ? 1.25 : 1.7));
  camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);ScrollTrigger.refresh();}
 addEventListener('resize',resize);
@@ -267,14 +267,14 @@ document.addEventListener('pointerup',stopDrag);
 document.addEventListener('pointercancel',stopDrag);
 addEventListener('wheel',e=>{
  if(e.ctrlKey)return;
- camera.position.z=THREE.MathUtils.clamp(camera.position.z+Math.sign(e.deltaY)*.12,window.innerWidth<700?10.8:4.3,window.innerWidth<700?13.5:9.0);
+ camera.position.z=THREE.MathUtils.clamp(camera.position.z+Math.sign(e.deltaY)*.12,window.innerWidth<700?13.2:4.3,window.innerWidth<700?16.5:9.0);
 },{passive:true});
 let lastRenderTime=0;
 function render(now=0){
  requestAnimationFrame(render);
  // Keep mobile GPU work near 30 fps while leaving scroll and GSAP animation smooth.
  const mobileNow = isMobile || isCoarsePointer;
- if(mobileNow && now-lastRenderTime<32) return;
+ if(mobileNow && now-lastRenderTime<24) return;
  lastRenderTime=now;
  // Slow, restrained product-shot rotation: both the glass dish and food turn together.
  if(!state.dragging){

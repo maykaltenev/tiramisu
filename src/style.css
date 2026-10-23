@@ -180,3 +180,51 @@ body { -webkit-text-size-adjust:100%; }
 @media (max-width:700px) {
   .hero .eyebrow, .hero h1, .hero .lede, .hero .scroll-cue, .step-copy, .scene-label { animation:none !important; }
 }
+
+/* Mobile editorial refinement: let the dessert lead, keep copy quiet and out of its center. */
+@media (max-width:700px) {
+  .hero {
+    min-height:88svh; min-height:88dvh;
+    padding:calc(env(safe-area-inset-top) + 1.4rem) 1.25rem 2rem;
+    background:linear-gradient(180deg,rgba(24,13,10,.52),rgba(24,13,10,.10) 42%,transparent 70%);
+    justify-content:flex-start;
+  }
+  .hero .eyebrow { font-size:.58rem; letter-spacing:.15em; margin-bottom:.65rem; }
+  .hero h1 {
+    max-width:74vw; font-size:clamp(2.25rem,9.5vw,3.35rem); line-height:.98;
+    text-shadow:0 2px 18px rgba(0,0,0,.45);
+  }
+  .hero .lede { max-width:66vw; font-size:.84rem; line-height:1.45; color:rgba(245,225,207,.88); }
+  .hero .scroll-cue { margin-top:1rem; font-size:.59rem; letter-spacing:.12em; }
+  .step {
+    min-height:90svh; min-height:90dvh;
+    align-items:flex-end; justify-content:flex-start;
+    padding:1rem 1rem calc(5.5rem + env(safe-area-inset-bottom));
+  }
+  .step-copy {
+    width:auto; max-width:min(78vw, 310px); padding:.9rem 1rem;
+    background:linear-gradient(135deg,rgba(24,13,10,.62),rgba(24,13,10,.32));
+    border:1px solid rgba(239,202,166,.12); border-left:1px solid rgba(239,202,166,.34);
+    border-radius:3px; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+    text-shadow:0 1px 12px rgba(0,0,0,.45);
+  }
+  .step-copy .eyebrow { font-size:.56rem; letter-spacing:.16em; margin-bottom:.5rem; }
+  .step-copy h2 { max-width:100%; font-size:clamp(1.65rem,7vw,2.3rem); line-height:1.02; margin-bottom:.55rem; }
+  .step-copy>p:not(.eyebrow) { max-width:100%; font-size:.79rem; line-height:1.45; margin:.45rem 0; color:rgba(245,225,207,.9); }
+  .ingredient-row { gap:5px; margin-top:.7rem; }
+  .ingredient-row span { font-size:.63rem; padding:5px 8px; }
+  .scene-label {
+    top:auto; bottom:calc(.9rem + env(safe-area-inset-bottom)); right:1rem;
+    max-width:46vw; transform:none; text-align:right; opacity:.78;
+  }
+  .scene-number { font-size:1.3rem; }
+  .scene-label strong { font-size:.67rem; }
+  .scene-label small { font-size:.58rem; }
+  .progress-track { height:2px; }
+  .ingredients { background:linear-gradient(180deg,rgba(41,24,16,.94),rgba(33,20,15,.98)); }
+}
+@media (max-width:380px) {
+  .hero h1 { max-width:76vw; font-size:2.25rem; }
+  .hero .lede { max-width:70vw; font-size:.8rem; }
+  .step-copy { max-width:78vw; }
+}
