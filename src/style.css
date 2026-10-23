@@ -175,3 +175,8 @@ body { -webkit-text-size-adjust:100%; }
   .step-copy>p:not(.eyebrow) { max-width: 76vw; font-size: .9rem; }
   .scene-label { max-width: 58vw; }
 }
+
+/* Mobile performance: remove decorative text bobbing and keep the food scene calm. */
+@media (max-width:700px) {
+  .hero .eyebrow, .hero h1, .hero .lede, .hero .scroll-cue, .step-copy, .scene-label { animation:none !important; }
+}

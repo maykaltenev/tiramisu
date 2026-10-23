@@ -8,9 +8,12 @@ gsap.registerPlugin(ScrollTrigger);
 
 const canvas = document.querySelector('#scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const isMobile = window.matchMedia('(max-width: 700px)').matches;
+const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+// Limit fill-rate on phones; high-DPI full-resolution WebGL is expensive.
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile || isCoarsePointer ? 1.25 : 1.7));
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled = !(isMobile || isCoarsePointer);
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -21,14 +24,14 @@ const scene = new THREE.Scene();
 scene.background = null;
 scene.fog = new THREE.Fog(0x21140f, 9, 22);
 
-const camera = new THREE.PerspectiveCamera(29, window.innerWidth / window.innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(window.innerWidth < 700 ? 58 : 29, window.innerWidth / window.innerHeight, 0.1, 100);
 // Keep the dessert prominent and almost front-on, like a premium food product shot.
-camera.position.set(0, 3.35, window.innerWidth < 700 ? 9.7 : 6.8);
+camera.position.set(0, 3.35, window.innerWidth < 700 ? 12.2 : 6.8);
 camera.lookAt(0, 0.72, 0);
 
 scene.add(new THREE.HemisphereLight(0xffe9d4, 0x392014, 2.5));
 const key = new THREE.DirectionalLight(0xffd9ad, 4.8);
-key.position.set(-4, 8, 6); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.00015; key.shadow.radius = 5; scene.add(key);
+key.position.set(-4, 8, 6); key.castShadow = !(isMobile || isCoarsePointer); key.shadow.mapSize.set(512, 512); key.shadow.bias = -0.00015; key.shadow.radius = 3; scene.add(key);
 const fill = new THREE.PointLight(0xe4a46c, 85, 20); fill.position.set(4, 4, -3); scene.add(fill);
 const rimLight = new THREE.DirectionalLight(0xfff4e5, 3.0); rimLight.position.set(1, 5, -6); scene.add(rimLight);
 
@@ -143,17 +146,23 @@ const cocoaMat=mat(0x4b2818,.95);
 // Cocoa is a fine airborne dusting, never a solid chocolate slab.
 const cocoaParticles = new THREE.Group(); cocoaGroup.add(cocoaParticles);
 const cocoaColors=[0x3a1c11,0x56301d,0x704629,0x8a5b39];
-for(let i=0;i<1900;i++){
+// Render cocoa as one lightweight point cloud rather than thousands of individual meshes.
+const cocoaPositions=[], cocoaColorValues=[];
+const cocoaThreeColors=cocoaColors.map(c=>new THREE.Color(c));
+const cocoaCount=isMobile || isCoarsePointer ? 850 : 1900;
+for(let i=0;i<cocoaCount;i++){
  const size=.0035+Math.random()*.007;
- const speck=new THREE.Mesh(new THREE.SphereGeometry(size,5,4),mat(cocoaColors[i%cocoaColors.length],.98));
- // A very thin layer of particles spread across the cream top.
- speck.position.set((Math.random()-.5)*3.78,.028+Math.random()*.028,(Math.random()-.5)*2.38);
- speck.scale.set(1,.45,1);
- cocoaParticles.add(speck);
+ cocoaPositions.push((Math.random()-.5)*3.78,.028+Math.random()*.028,(Math.random()-.5)*2.38);
+ const c=cocoaThreeColors[i%cocoaThreeColors.length]; cocoaColorValues.push(c.r,c.g,c.b);
 }
+const cocoaGeometry=new THREE.BufferGeometry();
+cocoaGeometry.setAttribute('position',new THREE.Float32BufferAttribute(cocoaPositions,3));
+cocoaGeometry.setAttribute('color',new THREE.Float32BufferAttribute(cocoaColorValues,3));
+const cocoaSpecks=new THREE.Points(cocoaGeometry,new THREE.PointsMaterial({size:isMobile?.025:.018,sizeAttenuation:true,vertexColors:true,roughness:1,transparent:true,opacity:.9,depthWrite:false}));
+cocoaParticles.add(cocoaSpecks);
 const dustMaterial = new THREE.PointsMaterial({color:0x5b321e,size:.018,sizeAttenuation:true,transparent:true,opacity:.38,depthWrite:false});
 const dustVertices=[];
-for(let i=0;i<2600;i++) dustVertices.push((Math.random()-.5)*3.85,.06+Math.random()*.22,(Math.random()-.5)*2.44);
+for(let i=0;i<(isMobile || isCoarsePointer ? 700 : 1600);i++) dustVertices.push((Math.random()-.5)*3.85,.06+Math.random()*.22,(Math.random()-.5)*2.44);
 const dustGeometry=new THREE.BufferGeometry();
 dustGeometry.setAttribute('position',new THREE.Float32BufferAttribute(dustVertices,3));
 const airborneDust=new THREE.Points(dustGeometry,dustMaterial);
@@ -202,9 +211,10 @@ function animateStep(step){
  gsap.to(cocoaGroup.position,{y:showCocoa?1.24:3.5,duration:.8,ease:'power2.out'});
  // Each scroll step moves the camera closer and turns the dessert slightly for a progressive reveal.
  const mobileView = window.innerWidth < 700;
- const zoom=(mobileView ? [9.7,9.55,9.4,9.25,9.1,8.95] : [6.8,6.45,6.1,5.8,5.45,5.1])[step];
+ const zoom=(mobileView ? [12.2,12.05,11.9,11.75,11.6,11.45] : [6.8,6.45,6.1,5.8,5.45,5.1])[step];
+ const motionDuration=mobileView ? .58 : 1.0;
  const tilt=(mobileView ? [3.7,3.68,3.65,3.62,3.6,3.58] : [3.55,3.5,3.45,3.4,3.35,3.3])[step];
- gsap.to(camera.position,{x:.15,y:tilt,z:zoom,duration:1.0,ease:'power2.inOut',onUpdate:()=>camera.lookAt(0,.72,0)});
+ gsap.to(camera.position,{x:.15,y:tilt,z:zoom,duration:motionDuration,ease:'power2.inOut',onUpdate:()=>camera.lookAt(0,.72,0)});
  state.targetRotation = step*.24;
 }
 gsap.set(coffeeGroup.scale,{y:0});
@@ -212,7 +222,7 @@ biscuitMeshes.forEach(b=>gsap.set(b.position,{y:3.6}));
 biscuitMeshes2.forEach(b=>gsap.set(b.position,{y:4.2}));
 gsap.set(cream1.position,{y:2.8});gsap.set(cream2.position,{y:3.8});gsap.set(cocoaGroup.position,{y:3.5});
 
-ScrollTrigger.create({trigger:'.hero',start:'top top',end:'bottom top',onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?9.7:6.8,duration:1.1,ease:'power2.inOut'})});
+ScrollTrigger.create({trigger:'.hero',start:'top top',end:'bottom top',onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?12.2:6.8,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'})});
 document.querySelectorAll('.step').forEach((section,index)=>{
  ScrollTrigger.create({
    trigger:section,start:'top center',end:'bottom center',
@@ -222,12 +232,13 @@ document.querySelectorAll('.step').forEach((section,index)=>{
 });
 ScrollTrigger.create({trigger:'.ingredients',start:'top center',onEnter:()=>{
  numberEl.textContent='✦';titleEl.textContent='The ingredient list';subtitleEl.textContent='Ready for your kitchen';
- gsap.to(camera.position,{z:window.innerWidth<700?9.7:6.8,duration:1.1,ease:'power2.inOut'});
-},onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?8.95:5.1,duration:1.1,ease:'power2.inOut'})});
+ gsap.to(camera.position,{z:window.innerWidth<700?12.2:6.8,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'});
+},onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?11.45:5.1,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'})});
 function resize(){camera.aspect=innerWidth/innerHeight;
  camera.position.x=0;
- camera.position.z=THREE.MathUtils.clamp(camera.position.z,innerWidth<700?8.8:4.3,innerWidth<700?11.5:9.0);
- camera.fov=innerWidth<700?56:29;
+ camera.position.z=THREE.MathUtils.clamp(camera.position.z,innerWidth<700?10.8:4.3,innerWidth<700?13.5:9.0);
+ camera.fov=innerWidth<700?58:29;
+ renderer.setPixelRatio(Math.min(window.devicePixelRatio, innerWidth<700 || isCoarsePointer ? 1.25 : 1.7));
  camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);ScrollTrigger.refresh();}
 addEventListener('resize',resize);
 // Direct manipulation: drag anywhere over the stage to orbit 360 degrees.
@@ -256,12 +267,15 @@ document.addEventListener('pointerup',stopDrag);
 document.addEventListener('pointercancel',stopDrag);
 addEventListener('wheel',e=>{
  if(e.ctrlKey)return;
- camera.position.z=THREE.MathUtils.clamp(camera.position.z+Math.sign(e.deltaY)*.12,window.innerWidth<700?8.8:4.3,window.innerWidth<700?11.5:9.0);
+ camera.position.z=THREE.MathUtils.clamp(camera.position.z+Math.sign(e.deltaY)*.12,window.innerWidth<700?10.8:4.3,window.innerWidth<700?13.5:9.0);
 },{passive:true});
-const clock=new THREE.Clock();
-function render(){
+let lastRenderTime=0;
+function render(now=0){
  requestAnimationFrame(render);
- const t=clock.getElapsedTime();
+ // Keep mobile GPU work near 30 fps while leaving scroll and GSAP animation smooth.
+ const mobileNow = isMobile || isCoarsePointer;
+ if(mobileNow && now-lastRenderTime<32) return;
+ lastRenderTime=now;
  // Slow, restrained product-shot rotation: both the glass dish and food turn together.
  if(!state.dragging){
  state.targetRotation += state.velocity; state.velocity *= .94;
@@ -273,11 +287,7 @@ ingredients.rotation.y += (rot-ingredients.rotation.y)*.16;
 const tilt=state.targetTilt;
 dish.rotation.x += (tilt-dish.rotation.x)*.12;
 ingredients.rotation.x += (tilt-ingredients.rotation.x)*.12;
-// Tiny, slow buoyancy keeps the dessert alive without making it look rubbery.
-const bob=Math.sin(t*1.25)*.008;
-cream1.position.y += ((state.step>=2?.48:2.8)+bob-cream1.position.y)*.018;
-cream2.position.y += ((state.step>=4?1.12:3.8)+bob-cream2.position.y)*.018;
-airborneDust.rotation.y=Math.sin(t*.18)*.012;
+// Keep the dessert still unless the visitor scrolls or interacts.
 renderer.render(scene,camera);
 }
 render();
