@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#24150f" />
+    <meta name="description" content="A cinematic, interactive tiramisu masterclass. Scroll through every layer, explore the dessert in 3D, and discover the recipe." />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:title" content="Tiramisu — Built Layer by Layer" />
+    <meta property="og:description" content="An interactive 3D tiramisu masterclass." />
+    <meta property="og:type" content="website" />
+    <title>Tiramisu — Built Layer by Layer</title>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene" aria-label="Interactive 3D tiramisu scene"></canvas>
+      <div class="grain"></div>
+      <header class="hero">
+        <p class="eyebrow">A dessert in six acts</p>
+        <h1>Tiramisu,<br><em>built layer by layer.</em></h1>
+        <p class="lede">Scroll to watch coffee, biscuits, cream and cocoa assemble into a dessert.</p>
+        <a href="#step-coffee" class="scroll-cue">SCROLL TO BEGIN <span>↓</span></a>
+      </header>
+      <div class="scene-label" aria-live="polite">
+        <span class="scene-number">01</span>
+        <div><strong id="scene-title">Coffee and rum</strong><small id="scene-subtitle">The first pour</small></div>
+      </div>
+      <main class="story">
+        <section class="step" id="step-coffee" data-step="0">
+          <div class="step-copy"><p class="eyebrow">01 / Coffee & rum</p><h2>A dark, fragrant start.</h2><p>Combine the espresso and rum, then let it cool. The ladyfingers will soak up this coffee mixture.</p><div class="ingredient-row"><span>200 ml espresso</span><span>2 tbsp rum</span></div></div>
+        </section>
+        <section class="step" id="step-biscuits" data-step="1">
+          <div class="step-copy"><p class="eyebrow">02 / Ladyfingers</p><h2>Dip. Place. Repeat.</h2><p>Dip each biscuit briefly into the cooled coffee, then lay them neatly in the dish.</p><div class="ingredient-row"><span>2 packages ladyfingers</span></div></div>
+        </section>
+        <section class="step" id="step-cream" data-step="2">
+          <div class="step-copy"><p class="eyebrow">03 / Mascarpone cream</p><h2>A cloud of cream.</h2><p>Beat mascarpone, sweet cream and powdered sugar until smooth and softly whipped. Spread a generous layer over the biscuits.</p><div class="ingredient-row"><span>500 g mascarpone</span><span>300 ml sweet cream</span><span>~3 tbsp powdered sugar</span></div></div>
+        </section>
+        <section class="step" id="step-repeat" data-step="3">
+          <div class="step-copy"><p class="eyebrow">04 / Build it up</p><h2>Another layer, please.</h2><p>Add more coffee-dipped ladyfingers, then another blanket of cream. Repeat for as many layers as you like.</p></div>
+        </section>
+        <section class="step" id="step-cocoa" data-step="4">
+          <div class="step-copy"><p class="eyebrow">05 / Cocoa dust</p><h2>The finishing touch.</h2><p>A soft snowfall of cocoa powder gives the top its signature bittersweet finish.</p><div class="ingredient-row"><span>Cocoa powder</span></div></div>
+        </section>
+        <section class="step final-step" id="step-serve" data-step="5">
+          <div class="step-copy"><p class="eyebrow">06 / Ready to serve</p><h2>Layered with love.</h2><p>Take a moment to admire those layers. Chill before serving for the best texture.</p><a class="restart" href="#step-coffee">Replay the build ↑</a></div>
+        </section>
+        <section class="ingredients">
+          <p class="eyebrow">The shopping list</p><h2>Everything you need.</h2>
+          <ul><li>200 ml espresso</li><li>2 tbsp rum</li><li>2 packages ladyfingers</li><li>500 g mascarpone</li><li>300 ml sweet cream</li><li>Around 3 tbsp powdered sugar</li><li>Cocoa powder</li></ul>
+        </section>
+      </main>
+      <div class="progress-track"><span id="progress"></span></div>
+      <div class="hint">Best experienced by scrolling slowly</div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
