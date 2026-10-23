@@ -24,9 +24,9 @@ const scene = new THREE.Scene();
 scene.background = null;
 scene.fog = new THREE.Fog(0x21140f, 9, 22);
 
-const camera = new THREE.PerspectiveCamera(window.innerWidth < 700 ? 61 : 29, window.innerWidth / window.innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(window.innerWidth < 700 ? 57 : 29, window.innerWidth / window.innerHeight, 0.1, 100);
 // Keep the dessert prominent and almost front-on, like a premium food product shot.
-camera.position.set(0, 3.35, window.innerWidth < 700 ? 14.6 : 6.8);
+camera.position.set(0, 3.35, window.innerWidth < 700 ? 12.6 : 6.8);
 camera.lookAt(0, 0.72, 0);
 
 scene.add(new THREE.HemisphereLight(0xffe9d4, 0x392014, 2.5));
@@ -211,7 +211,7 @@ function animateStep(step){
  gsap.to(cocoaGroup.position,{y:showCocoa?1.24:3.5,duration:.8,ease:'power2.out'});
  // Each scroll step moves the camera closer and turns the dessert slightly for a progressive reveal.
  const mobileView = window.innerWidth < 700;
- const zoom=(mobileView ? [14.6,14.45,14.3,14.15,14.0,13.85] : [6.8,6.45,6.1,5.8,5.45,5.1])[step];
+ const zoom=(mobileView ? [12.6,12.48,12.36,12.24,12.12,12.0] : [6.8,6.45,6.1,5.8,5.45,5.1])[step];
  const motionDuration=mobileView ? .58 : 1.0;
  const tilt=(mobileView ? [3.45,3.44,3.43,3.42,3.41,3.4] : [3.55,3.5,3.45,3.4,3.35,3.3])[step];
  gsap.to(camera.position,{x:.15,y:tilt,z:zoom,duration:motionDuration,ease:'power2.inOut',onUpdate:()=>camera.lookAt(0,.72,0)});
@@ -222,7 +222,7 @@ biscuitMeshes.forEach(b=>gsap.set(b.position,{y:3.6}));
 biscuitMeshes2.forEach(b=>gsap.set(b.position,{y:4.2}));
 gsap.set(cream1.position,{y:2.8});gsap.set(cream2.position,{y:3.8});gsap.set(cocoaGroup.position,{y:3.5});
 
-ScrollTrigger.create({trigger:'.hero',start:'top top',end:'bottom top',onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?14.6:6.8,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'})});
+ScrollTrigger.create({trigger:'.hero',start:'top top',end:'bottom top',onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?12.6:6.8,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'})});
 document.querySelectorAll('.step').forEach((section,index)=>{
  ScrollTrigger.create({
    trigger:section,start:'top center',end:'bottom center',
@@ -232,12 +232,12 @@ document.querySelectorAll('.step').forEach((section,index)=>{
 });
 ScrollTrigger.create({trigger:'.ingredients',start:'top center',onEnter:()=>{
  numberEl.textContent='✦';titleEl.textContent='The ingredient list';subtitleEl.textContent='Ready for your kitchen';
- gsap.to(camera.position,{z:window.innerWidth<700?14.6:6.8,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'});
-},onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?13.85:5.1,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'})});
+ gsap.to(camera.position,{z:window.innerWidth<700?12.6:6.8,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'});
+},onEnterBack:()=>gsap.to(camera.position,{z:window.innerWidth<700?12.0:5.1,duration:window.innerWidth<700?.65:1.1,ease:'power2.inOut'})});
 function resize(){camera.aspect=innerWidth/innerHeight;
  camera.position.x=0;
- camera.position.z=THREE.MathUtils.clamp(camera.position.z,innerWidth<700?13.2:4.3,innerWidth<700?16.5:9.0);
- camera.fov=innerWidth<700?61:29;
+ camera.position.z=THREE.MathUtils.clamp(camera.position.z,innerWidth<700?11.2:4.3,innerWidth<700?14.5:9.0);
+ camera.fov=innerWidth<700?57:29;
  renderer.setPixelRatio(Math.min(window.devicePixelRatio, innerWidth<700 || isCoarsePointer ? 1.25 : 1.7));
  camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);ScrollTrigger.refresh();}
 addEventListener('resize',resize);
@@ -267,7 +267,7 @@ document.addEventListener('pointerup',stopDrag);
 document.addEventListener('pointercancel',stopDrag);
 addEventListener('wheel',e=>{
  if(e.ctrlKey)return;
- camera.position.z=THREE.MathUtils.clamp(camera.position.z+Math.sign(e.deltaY)*.12,window.innerWidth<700?13.2:4.3,window.innerWidth<700?16.5:9.0);
+ camera.position.z=THREE.MathUtils.clamp(camera.position.z+Math.sign(e.deltaY)*.12,window.innerWidth<700?11.2:4.3,window.innerWidth<700?14.5:9.0);
 },{passive:true});
 let lastRenderTime=0;
 function render(now=0){
